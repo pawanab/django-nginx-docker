@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+    django-app:
+        build: .
+        container_name: 'django-app'
+        hostname: 'django-app'
+        # ports:
+        #     - "8080:8000" // we do not need port binding in app because we are using nginx to communicate, not gunicorn
+        volumes: 
+            - .:/app
+        dns:
+            - 8.8.8.8
+        networks: 
+            - django-nginx-network
+    nginx:
+        image: nginx:1.13
+        ports: 
+            - "8000:80"
+        volumes: 
+            - ./config/nginx/conf.d:/etc/nginx/conf.d
+        depends_on: 
+            - django-app
+        networks: 
+            - django-nginx-network
+
+networks: 
+    django-nginx-network:
+        driver: bridge
